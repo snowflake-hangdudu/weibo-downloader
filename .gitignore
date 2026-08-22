@@ -1,0 +1,14 @@
+# 浏览器加载已解压扩展时生成
+_metadata/
+
+# 构建产物
+*.zip
+*.xpi
+
+# Python
+__pycache__/
+*.pyc
+
+# 系统
+.DS_Store
+Thumbs.db

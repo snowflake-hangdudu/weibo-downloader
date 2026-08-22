@@ -1,0 +1,479 @@
+#weibo-dl-panel {
+  --wbd-primary: #000000;
+  --wbd-primary-hover: #111111;
+  --wbd-primary-soft: rgba(0, 0, 0, 0.06);
+  --wbd-primary-contrast: #ffffff;
+  --wbd-surface: #f5f5f5;
+  --wbd-bg: #ffffff;
+  --wbd-text: #111111;
+  --wbd-text-muted: #7a7a7a;
+  --wbd-border: #e3e3e3;
+  --wbd-header-text: #111111;
+  --wbd-radius: 6px;
+  --wbd-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+  position: fixed;
+  right: 24px;
+  bottom: 120px;
+  z-index: 2147483646;
+  font-family: 'Segoe UI Variable', 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--wbd-text);
+}
+
+@media (prefers-color-scheme: dark) {
+  #weibo-dl-panel {
+    --wbd-primary: #ffffff;
+    --wbd-primary-hover: #e6e6e6;
+    --wbd-primary-soft: rgba(255, 255, 255, 0.10);
+    --wbd-primary-contrast: #000000;
+    --wbd-surface: #1b1b1b;
+    --wbd-bg: #101010;
+    --wbd-text: #e6e6e6;
+    --wbd-text-muted: #9a9a9a;
+    --wbd-border: #2b2b2b;
+    --wbd-header-text: #e6e6e6;
+    --wbd-shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
+  }
+}
+
+#weibo-dl-panel,
+#weibo-dl-panel * {
+  box-sizing: border-box;
+}
+
+#weibo-dl-toggle {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  border: 1px solid var(--wbd-border);
+  background: var(--wbd-bg);
+  cursor: grab;
+  box-shadow: var(--wbd-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  overflow: hidden;
+  transition: background 0.2s, transform 0.15s;
+}
+
+#weibo-dl-toggle img {
+  width: 100%;
+  height: 100%;
+  border-radius: 13px;
+  display: block;
+  object-fit: cover;
+}
+
+#weibo-dl-toggle:hover {
+  transform: scale(1.04);
+}
+
+#weibo-dl-menu {
+  position: absolute;
+  bottom: 76px;
+  right: 0;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  max-height: min(calc(100vh - 200px), 780px);
+  display: flex;
+  flex-direction: column;
+  background: var(--wbd-bg);
+  border: 1px solid var(--wbd-border);
+  border-radius: var(--wbd-radius);
+  box-shadow: var(--wbd-shadow);
+  overflow: hidden;
+}
+
+#weibo-dl-menu.hidden,
+#weibo-dl-home.hidden,
+#weibo-dl-page.hidden,
+.weibo-dl-hidden {
+  display: none !important;
+}
+
+.weibo-dl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--wbd-bg);
+  color: var(--wbd-header-text);
+  border-bottom: 1px solid var(--wbd-border);
+  flex-shrink: 0;
+}
+
+.weibo-dl-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.weibo-dl-header-icon {
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.weibo-dl-title {
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.weibo-dl-version {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: var(--wbd-radius);
+  background: var(--wbd-surface);
+  color: var(--wbd-text-muted);
+  flex-shrink: 0;
+}
+
+#weibo-dl-close {
+  background: var(--wbd-surface);
+  border: 1px solid var(--wbd-border);
+  color: var(--wbd-text-muted);
+  font-size: 18px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--wbd-radius);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.weibo-dl-body {
+  padding: 14px 16px 16px;
+  background: var(--wbd-bg);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+#weibo-dl-home,
+#weibo-dl-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+#weibo-dl-menu.is-page .weibo-dl-footer {
+  display: none !important;
+}
+
+.weibo-dl-page-back {
+  width: 100%;
+  margin: 0 0 14px;
+  padding: 9px 12px;
+  border: 1px solid var(--wbd-border);
+  border-radius: var(--wbd-radius);
+  background: var(--wbd-surface);
+  color: var(--wbd-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.weibo-dl-page-back::before {
+  content: '←';
+  margin-right: 6px;
+}
+
+.weibo-dl-page-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.weibo-dl-info-date {
+  margin: 0 0 10px;
+  font-size: 11px;
+  color: var(--wbd-text-muted);
+}
+
+.weibo-dl-info-body {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--wbd-text);
+  overflow-wrap: anywhere;
+}
+
+.weibo-dl-info-body p {
+  margin: 0 0 8px;
+}
+
+.weibo-dl-notice-section {
+  margin: 0 0 12px;
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--wbd-border);
+}
+
+.weibo-dl-notice-section:last-child {
+  border-bottom: 0;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.weibo-dl-notice-section-title,
+.weibo-dl-notice-plan-label {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.weibo-dl-notice-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--wbd-text-muted);
+}
+
+.weibo-dl-detect {
+  display: none;
+}
+
+.weibo-dl-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+  flex-shrink: 0;
+}
+
+.weibo-dl-detect.is-error .weibo-dl-dot {
+  background: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.weibo-dl-detect.is-loading .weibo-dl-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.weibo-dl-card {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: var(--wbd-surface);
+  border: 1px solid var(--wbd-border);
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.weibo-dl-cover {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--wbd-primary-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--wbd-primary-contrast);
+}
+
+.weibo-dl-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.weibo-dl-card-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.weibo-dl-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.weibo-dl-card-author {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--wbd-primary);
+}
+
+.weibo-dl-card-author::before {
+  content: '博主 · ';
+  color: var(--wbd-text-muted);
+  font-weight: 400;
+}
+
+.weibo-dl-card-sub {
+  margin-top: 5px;
+  font-size: 11px;
+  color: var(--wbd-text-muted);
+}
+
+.weibo-dl-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow: auto;
+  margin-bottom: 12px;
+}
+
+.weibo-dl-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--wbd-border);
+  border-radius: 10px;
+  background: var(--wbd-surface);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.weibo-dl-item-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weibo-dl-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.weibo-dl-btn,
+.weibo-dl-btn-secondary {
+  border-radius: var(--wbd-radius);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 40px;
+  padding: 0 12px;
+}
+
+.weibo-dl-btn {
+  flex: 1;
+  border: 1px solid var(--wbd-primary);
+  background: var(--wbd-primary);
+  color: var(--wbd-primary-contrast);
+}
+
+.weibo-dl-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.weibo-dl-btn-secondary {
+  border: 1px solid var(--wbd-border);
+  background: var(--wbd-surface);
+  color: var(--wbd-text);
+}
+
+.weibo-dl-debug {
+  margin-top: 4px;
+  border: 1px solid var(--wbd-border);
+  border-radius: var(--wbd-radius);
+  background: var(--wbd-surface);
+  overflow: hidden;
+}
+
+.weibo-dl-debug-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  user-select: none;
+}
+
+.weibo-dl-debug-summary::-webkit-details-marker {
+  display: none;
+}
+
+.weibo-dl-debug-count {
+  padding: 1px 7px;
+  border-radius: var(--wbd-radius);
+  background: var(--wbd-primary-soft);
+  color: var(--wbd-text-muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.weibo-dl-debug-actions {
+  display: flex;
+  gap: 6px;
+  padding: 0 10px 8px;
+}
+
+.weibo-dl-debug-btn {
+  border: 1px solid var(--wbd-border);
+  background: var(--wbd-bg);
+  color: var(--wbd-text);
+  border-radius: var(--wbd-radius);
+  font-size: 11px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.weibo-dl-debug-log {
+  margin: 0;
+  padding: 8px 10px 10px;
+  max-height: 160px;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10.5px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: var(--wbd-bg);
+  border-top: 1px solid var(--wbd-border);
+}
+
+.weibo-dl-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--wbd-surface);
+  border-top: 1px solid var(--wbd-border);
+  flex-shrink: 0;
+}
+
+.weibo-dl-footer a,
+.weibo-dl-footer button {
+  appearance: none;
+  border: 1px solid var(--wbd-border);
+  border-radius: var(--wbd-radius);
+  background: var(--wbd-primary-soft);
+  color: var(--wbd-primary);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: inherit;
+  line-height: 1.35;
+  padding: 4px 10px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  #weibo-dl-panel {
+    right: 12px;
+    bottom: 88px;
+  }
+
+  #weibo-dl-menu {
+    width: calc(100vw - 24px);
+  }
+}

@@ -1,0 +1,36 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        { "header": "Referer", "operation": "set", "value": "https://weibo.com/" }
+      ]
+    },
+    "condition": {
+      "urlFilter": "||sinaimg.cn",
+      "resourceTypes": [
+        "sub_frame", "image", "media", "xmlhttprequest",
+        "object", "other"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        { "header": "Referer", "operation": "set", "value": "https://weibo.com/" }
+      ]
+    },
+    "condition": {
+      "urlFilter": "||weibocdn.com",
+      "resourceTypes": [
+        "sub_frame", "image", "media", "xmlhttprequest",
+        "object", "other"
+      ]
+    }
+  }
+]
