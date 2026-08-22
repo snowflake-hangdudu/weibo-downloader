@@ -191,7 +191,7 @@
 
   async function refresh() {
     const urlId = routeId();
-    debug().log('刷新', location.href, urlId || '首页');
+    debug().log('刷新', location.href, urlId || (location.hostname === 's.weibo.com' ? '搜索页' : '首页'));
     if (!adapter.matches(location.href)) {
       panel.renderContent(DownloaderCore.platform.normalizeContent({ title: '当前页面暂不支持', items: [] }));
       return;

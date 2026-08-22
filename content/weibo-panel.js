@@ -211,6 +211,10 @@
     wrap.append(fab, menu);
     rootEl.appendChild(wrap);
 
+    function isOpen() {
+      return !menu.classList.contains('hidden');
+    }
+
     function open() {
       menu.classList.remove('hidden');
       fab.setAttribute('aria-expanded', 'true');
@@ -220,6 +224,11 @@
       menu.classList.add('hidden');
       fab.setAttribute('aria-expanded', 'false');
       showHome();
+    }
+
+    function toggle() {
+      if (isOpen()) hide();
+      else open();
     }
 
     function showHome() {
@@ -330,7 +339,7 @@
       setStatus(items.length ? 'ready' : 'empty', items.length ? '已识别当前页面' : '当前页面没有可保存内容');
     }
 
-    fab.addEventListener('click', open);
+    fab.addEventListener('click', toggle);
     close.addEventListener('click', hide);
     pageBack.addEventListener('click', showHome);
     refresh.addEventListener('click', () => opts.onRefresh?.());

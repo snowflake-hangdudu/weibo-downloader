@@ -11,6 +11,20 @@
     '[class*="detail_main"]',
     '[class*="Detail_box"]'
   ];
+  const SEARCH_CARD_SELECTORS = [
+    '.card-wrap[action-type="feed_list_item"]',
+    '#pl_feedlist_index .card-wrap',
+    '[action-type="feed_list_item"]',
+    '.card-wrap'
+  ];
+
+  function isSearchPage() {
+    try {
+      return new URL(location.href).hostname === 's.weibo.com';
+    } catch (_) {
+      return false;
+    }
+  }
 
   function debug() {
     return globalThis.WeiboDlDebug || { log() {}, shortUrl(value) { return String(value || ''); } };
@@ -108,7 +122,7 @@
   }
 
   function postSelector() {
-    return CARD_SELECTORS.join(',');
+    return (isSearchPage() ? SEARCH_CARD_SELECTORS.concat(CARD_SELECTORS) : CARD_SELECTORS).join(',');
   }
 
   function playerNode(root) {
@@ -143,9 +157,21 @@
     return names.join('|') || '无媒体class';
   }
 
+  function looksLikeSearchPost(root) {
+    if (!root || root.id === 'weibo-dl-root' || root.closest?.('#weibo-dl-root')) return false;
+    if (root.querySelector?.('.card-user-b, .card-user, .card-person, .card-no-result')) return false;
+    if (root.matches?.('.card-no-result, .card-for-ppe')) return false;
+    return Boolean(
+      root.getAttribute?.('mid') ||
+      root.getAttribute?.('data-mid') ||
+      root.querySelector?.('[node-type="feed_list_content"], p.txt, .card-feed, .media-piclist, a[href*="weibo.com/"]')
+    );
+  }
+
   function looksLikePost(root) {
     if (!root || root.id === 'weibo-dl-root' || root.closest?.('#weibo-dl-root')) return false;
     if (root.matches?.('[class*="wbpro-feed-content"], [class*="Feed_text"], [class*="ogText"]')) return false;
+    if (isSearchPage() && looksLikeSearchPost(root)) return true;
     return Boolean(
       idFromRoot(root) ||
       hasPlayer(root) ||
@@ -160,7 +186,7 @@
       if (node.closest?.('#weibo-dl-root')) continue;
       let card = node;
       if (node.classList?.contains('vue-recycle-scroller__item-view')) {
-        card = node.querySelector('article, [class*="Feed_wrap"]') || node;
+        card = node.querySelector('article, [class*="Feed_wrap"], .card-wrap') || node;
       }
       if (seen.has(card) || !looksLikePost(card)) continue;
       seen.add(card);
@@ -255,7 +281,7 @@
     for (const el of listRoots()) {
       const rect = el.getBoundingClientRect();
       const overlap = Math.min(rect.bottom, zoneBottom) - Math.max(rect.top, zoneTop);
-      if (overlap < 80) continue;
+      if (overlap < (isSearchPage() ? 48 : 80)) continue;
       const score = overlap + (hasPlayer(el) ? 280 : 0);
       if (score > bestScore) {
         best = el;
@@ -296,7 +322,7 @@
       '[class*="Feed_text"], [class*="detail_text"], [class*="wbtext"], ' +
       '[class*="wbpro-feed-content"], [class*="wbpro-feed-ogText"], ' +
       '[class~="weibo-text"], ' +
-      '[node-type="feed_list_content"]'
+      '[node-type="feed_list_content"], p.txt, .txt'
     );
     return String(target?.innerText || '').replace(/\n{3,}/g, '\n\n').trim();
   }
@@ -304,7 +330,7 @@
   function formatWeiboTime(value) {
     const raw = String(value || '').replace(/\s+/g, ' ').trim();
     if (!raw) return '';
-    if (/昨天|今天|分钟前|小时前|刚刚/.test(raw) || /^\d{1,2}-\d{1,2}(?:\s+\d{1,2}:\d{2})?/.test(raw)) {
+    if (/昨天|今天|分钟前|小时前|刚刚|月|日/.test(raw) || /^\d{1,2}-\d{1,2}(?:\s+\d{1,2}:\d{2})?/.test(raw)) {
       return raw.slice(0, 16);
     }
     const date = new Date(raw);
@@ -324,6 +350,10 @@
   function authorFrom(root) {
     if (!root) return '';
     const selectors = [
+      'a.name',
+      '.info a.name',
+      '.card-feed .name',
+      '[nick-name]',
       'a[href*="/n/"]',
       '[class*="head_name"] a',
       '[class*="head_name"]',
@@ -345,7 +375,7 @@
   }
 
   function timeFrom(root) {
-    const el = root.querySelector('a[class*="head-info_time"], time, [class*="from"] a');
+    const el = root.querySelector('a[class*="head-info_time"], time, .from a, [class*="from"] a');
     return formatWeiboTime(el?.getAttribute?.('title') || el?.textContent || '');
   }
 
