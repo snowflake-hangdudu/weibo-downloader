@@ -7,7 +7,7 @@
   const EMPTY_CONTENT = Object.freeze({
     notice: { enabled: false, title: '公告', body: '', pinned: [], recent: [], knownIssues: [], roadmap: {} },
     coop: { enabled: false, title: '开发合作', body: '' },
-    rating: { enabled: false, url: '', edge: '', chrome: '', firefox: '', minSuccess: 3, minimumVersion: '' }
+    rating: { enabled: false, url: '', edge: '', chrome: '', firefox: '', minSuccess: 10, minimumVersion: '' }
   });
 
   function section(value) {

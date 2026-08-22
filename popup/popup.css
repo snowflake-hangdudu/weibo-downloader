@@ -604,6 +604,18 @@ body {
   text-decoration: underline;
 }
 
+.popup-legal {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--wbd-text-muted);
+}
+
+.popup-legal a {
+  color: var(--wbd-primary);
+  text-decoration: underline;
+}
+
 .popup-footer-actions {
   display: flex;
   align-items: center;

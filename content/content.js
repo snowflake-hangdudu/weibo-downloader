@@ -9,9 +9,8 @@
       enabled: true,
       title: '公告',
       updated: '2026-08-23',
-      body: '保存当前可访问微博的正文、图片和已暴露视频。切到另一条微博后会重新识别。',
-      pinned: ['首页滑到哪条就识别哪条。图片/视频若失败，等媒体出现后再保存。'],
-      recent: ['1.0.0：首页滑动识别当前微博，保存正文、图片和已暴露视频。'],
+      pinned: ['仅保存当前页面中你可正常访问的内容；不绕过登录、付费、私密或其他访问限制。'],
+      recent: ['1.0.0：支持保存当前微博的正文、图片和已暴露视频。'],
       knownIssues: [],
       roadmap: { feedback: [], upcoming: [], planned: [] }
     },
@@ -20,9 +19,12 @@
       title: '开发合作',
       updated: '2026-08-23',
       body: '接浏览器插件定制开发。\n\n有合作意向请发邮件。\n邮箱：hangdudu0@agent.qq.com\n请在邮件中备注「插件开发」，并简单说明需求。'
-    }
+    },
+    rating: { enabled: false, url: '', edge: '', chrome: '', firefox: '', minSuccess: 10 }
   };
+  const STORE_RATING_KEY = 'weiboDlStoreRating_v1';
   let remoteContent = DEFAULT_REMOTE;
+  let currentSheet = '';
   let lastContent = null;
 
   function fillNoticeBody(el, notice) {
@@ -32,12 +34,12 @@
     function section(title, value) {
       const lines = toLines(value);
       if (!lines.length) return;
-      const wrap = el.ownerDocument.createElement('section');
+      const wrap = el.ownerDocument.createElement('div');
       wrap.className = 'weibo-dl-notice-section';
-      dom.appendTextElement(wrap, 'h4', 'weibo-dl-notice-section-title', title);
-      const list = el.ownerDocument.createElement('ul');
+      dom.appendTextElement(wrap, 'div', 'weibo-dl-notice-section-title', title);
+      const list = el.ownerDocument.createElement('div');
       list.className = 'weibo-dl-notice-list';
-      lines.forEach((line) => dom.appendTextElement(list, 'li', '', line));
+      lines.forEach((line) => dom.appendTextElement(list, 'div', 'weibo-dl-notice-item', line));
       wrap.appendChild(list);
       el.appendChild(wrap);
     }
@@ -51,10 +53,33 @@
     section('置顶说明', notice.pinned);
     section('最近更新', notice.recent);
     section('已知问题', notice.knownIssues);
+    const roadmapRows = [
+      ['待反馈需求', roadmap.feedback],
+      ['待更新需求', roadmap.upcoming],
+      ['待做需求', roadmap.planned]
+    ];
+    if (roadmapRows.some(([, value]) => toLines(value).length)) {
+      const wrap = el.ownerDocument.createElement('div');
+      wrap.className = 'weibo-dl-notice-section';
+      dom.appendTextElement(wrap, 'div', 'weibo-dl-notice-section-title', '开发计划');
+      roadmapRows.forEach(([label, value]) => {
+        const lines = toLines(value);
+        if (!lines.length) return;
+        const group = el.ownerDocument.createElement('div');
+        group.className = 'weibo-dl-notice-plan';
+        dom.appendTextElement(group, 'div', 'weibo-dl-notice-plan-label', label);
+        const list = el.ownerDocument.createElement('div');
+        list.className = 'weibo-dl-notice-list';
+        lines.forEach((line) => dom.appendTextElement(list, 'div', 'weibo-dl-notice-item', line));
+        group.appendChild(list);
+        wrap.appendChild(group);
+      });
+      el.appendChild(wrap);
+    }
   }
 
   const panel = DownloaderCore.panel.createPanel({
-    title: '微博内容下载与备份助手',
+    title: '微博下载助手',
     fabLabel: '保存',
     version,
     iconUrl: api.runtime.getURL('icons/icon128.png'),
@@ -63,10 +88,12 @@
     onRefresh: () => scheduleRefresh('manual'),
     onDownload: downloadItems,
     onOpenSheet: openSheet,
+    onShowHome() { currentSheet = ''; },
     onFillSheet(body, key, data) {
       if (key === 'notice') fillNoticeBody(body, data);
       else DownloaderCore.dom.fillTextLines(body, data.body || '暂无内容');
-    }
+    },
+    onRatingAction: handleRatingAction
   });
   debug().bind();
 
@@ -82,13 +109,84 @@
     } catch (_) {
       remoteContent = DEFAULT_REMOTE;
     }
+    applyRemoteButtons();
     return remoteContent;
   }
 
-  async function openSheet(key) {
-    await loadRemoteContent();
-    panel.openSheet(key, remoteContent[key] || DEFAULT_REMOTE[key]);
+  function storeKey() {
+    return runtime.detectStore();
   }
+
+  function ratingUrl() {
+    return DownloaderCore.remote.pickRatingUrl(remoteContent.rating, storeKey());
+  }
+
+  function ratingStoreKey() {
+    const rating = remoteContent.rating || {};
+    const key = storeKey();
+    return DownloaderCore.remote.httpsUrl(rating[key]) ? key : 'edge';
+  }
+
+  function ratingStoreLabel() {
+    return { edge: 'Edge', chrome: 'Chrome', firefox: 'Firefox' }[ratingStoreKey()] || 'Edge';
+  }
+
+  function ratingEnabled() {
+    return DownloaderCore.remote.ratingEnabled(remoteContent.rating, version, storeKey());
+  }
+
+  function applyRemoteButtons() {
+    panel.setSheetEnabled('notice', remoteContent.notice?.enabled !== false);
+    panel.setSheetEnabled('coop', remoteContent.coop?.enabled !== false);
+    if (!ratingEnabled()) panel.setRating({ visible: false });
+  }
+
+  function openSheet(key) {
+    currentSheet = key;
+    panel.openSheet(key, remoteContent[key] || DEFAULT_REMOTE[key]);
+    loadRemoteContent().then((data) => {
+      if (currentSheet === key) panel.openSheet(key, data[key] || DEFAULT_REMOTE[key]);
+    });
+  }
+
+  async function loadStoreRatingState() {
+    const stored = await runtime.storageGet(STORE_RATING_KEY);
+    const value = stored?.[STORE_RATING_KEY];
+    return value && typeof value === 'object' ? value : {};
+  }
+
+  async function saveStoreRatingState(patch) {
+    const prev = await loadStoreRatingState();
+    await runtime.storageSet({ [STORE_RATING_KEY]: { ...prev, ...patch } });
+  }
+
+  async function noteDownloadSuccessForRating() {
+    try {
+      await loadRemoteContent();
+      if (!ratingEnabled()) return;
+      const state = await loadStoreRatingState();
+      if (state.neverAsk) return;
+      const count = (Number(state.successCount) || 0) + 1;
+      await saveStoreRatingState({ successCount: count, dismissedUntilNextSuccess: false });
+      const minSuccess = Number(remoteContent.rating?.minSuccess) || 10;
+      if (count >= minSuccess) {
+        panel.setRating({ visible: true, storeLabel: ratingStoreLabel() });
+      }
+    } catch (_) {}
+  }
+
+  async function handleRatingAction(action) {
+    if (action === 'rate') {
+      panel.setRating({ visible: false, storeLabel: ratingStoreLabel() });
+      const url = ratingUrl();
+      if (url) window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    if (action === 'never') await saveStoreRatingState({ neverAsk: true });
+    else await saveStoreRatingState({ dismissedUntilNextSuccess: true });
+    panel.setRating({ visible: false, storeLabel: ratingStoreLabel() });
+  }
+
   loadRemoteContent();
 
   async function refresh() {
@@ -214,7 +312,10 @@
         }
         if (event.type === 'done') {
           if (downloadError) panel.setStatus('error', downloadError);
-          else panel.setStatus('ready', '下载任务已交给浏览器');
+          else {
+            panel.setStatus('ready', '下载任务已交给浏览器');
+            noteDownloadSuccessForRating();
+          }
           debug().log('队列结束', downloadError || 'ok');
         }
       }

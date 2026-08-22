@@ -154,7 +154,7 @@ EXT.runtime.onMessage.addListener((message, sender, respond) => {
     }
 
     const filename = item.filename || DownloaderCore.media.buildDownloadPath({
-      root: '微博内容下载与备份助手',
+      root: '微博下载助手',
       title: message.title,
       index: item.index,
       label: item.kind,

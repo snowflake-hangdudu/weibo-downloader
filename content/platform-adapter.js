@@ -631,7 +631,7 @@
 
   globalThis.SiteAdapter = DownloaderCore.platform.validateAdapter({
     id: 'weibo',
-    label: '微博内容下载与备份助手',
+    label: '微博下载助手',
     matches: isWeiboHost,
 
     postIdFromHref: postIdFromLocation,

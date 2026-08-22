@@ -138,14 +138,6 @@ async function init() {
   }
 
   $('btn-open-panel')?.addEventListener('click', () => openPanel());
-  $('popup-notice-link')?.addEventListener('click', (event) => {
-    event.preventDefault();
-    openPanel('notice');
-  });
-  $('popup-coop-link')?.addEventListener('click', (event) => {
-    event.preventDefault();
-    openPanel('coop');
-  });
   $('btn-retry')?.addEventListener('click', async () => {
     if (!tabId) return;
     try {

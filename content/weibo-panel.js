@@ -108,7 +108,7 @@
 
     const debug = doc.createElement('details');
     debug.className = 'weibo-dl-debug';
-    debug.open = true;
+    debug.open = false;
     const summary = doc.createElement('summary');
     summary.className = 'weibo-dl-debug-summary';
     dom.appendTextElement(summary, 'span', '', '调试日志');
@@ -138,9 +138,9 @@
     pageBack.type = 'button';
     pageBack.className = 'weibo-dl-page-back';
     pageBack.textContent = '返回下载';
-    const pageTitle = dom.appendTextElement(page, 'h3', 'weibo-dl-page-title', '');
+    const pageTitle = dom.appendTextElement(page, 'div', 'weibo-dl-page-title', '');
     pageTitle.id = 'weibo-dl-info-title';
-    const pageDate = dom.appendTextElement(page, 'p', 'weibo-dl-info-date', '');
+    const pageDate = dom.appendTextElement(page, 'div', 'weibo-dl-info-date', '');
     pageDate.id = 'weibo-dl-info-date';
     pageDate.hidden = true;
     const pageBody = doc.createElement('div');
@@ -152,21 +152,62 @@
 
     const footer = doc.createElement('div');
     footer.className = 'weibo-dl-footer';
-    function sheetButton(key, label) {
+    function sheetLink(key, label) {
       const btn = doc.createElement('button');
       btn.type = 'button';
+      btn.className = 'weibo-dl-footer-link';
       btn.dataset.sheet = key;
       btn.textContent = label;
       return btn;
     }
-    const noticeBtn = sheetButton('notice', '公告');
-    const coopBtn = sheetButton('coop', '开发合作');
+    function externalLink(href, label) {
+      const a = doc.createElement('a');
+      a.className = 'weibo-dl-footer-link';
+      a.href = href;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = label;
+      return a;
+    }
+    const links = doc.createElement('div');
+    links.className = 'weibo-dl-footer-links';
+    const faqLink = externalLink('https://snowflake-hangdudu.github.io/weibo-downloader/faq.html', '常见问题');
+    const privacyLink = externalLink('https://snowflake-hangdudu.github.io/weibo-downloader/', '隐私政策');
+    const noticeLink = sheetLink('notice', '公告');
+    const coopLink = sheetLink('coop', '开发合作');
     const feedback = doc.createElement('a');
+    feedback.className = 'weibo-dl-feedback';
     feedback.textContent = '反馈邮箱：hangdudu0@agent.qq.com';
-    feedback.href = 'mailto:hangdudu0@agent.qq.com?subject=微博内容下载与备份助手反馈';
-    footer.append(noticeBtn, coopBtn, feedback);
+    feedback.href = 'mailto:hangdudu0@agent.qq.com?subject=微博下载助手反馈';
+    links.append(faqLink, privacyLink, noticeLink, coopLink, feedback);
+    footer.append(links);
 
-    menu.append(header, body, footer);
+    const rating = doc.createElement('div');
+    rating.className = 'weibo-dl-store-rating hidden';
+    rating.setAttribute('role', 'note');
+    dom.appendTextElement(rating, 'div', 'weibo-dl-store-rating-title', '下载搞定 ⭐ 给个好评呗');
+    const ratingText = dom.appendTextElement(rating, 'div', 'weibo-dl-store-rating-text', '用着顺手的话，去商店点个分。');
+    const ratingPrimary = doc.createElement('button');
+    ratingPrimary.type = 'button';
+    ratingPrimary.className = 'weibo-dl-store-rating-primary';
+    ratingPrimary.dataset.action = 'rate';
+    ratingPrimary.textContent = '去商店评分 ⭐';
+    const ratingActions = doc.createElement('div');
+    ratingActions.className = 'weibo-dl-store-rating-actions';
+    const ratingLater = doc.createElement('button');
+    ratingLater.type = 'button';
+    ratingLater.className = 'weibo-dl-store-rating-ghost';
+    ratingLater.dataset.action = 'later';
+    ratingLater.textContent = '下次再说';
+    const ratingNever = doc.createElement('button');
+    ratingNever.type = 'button';
+    ratingNever.className = 'weibo-dl-store-rating-ghost';
+    ratingNever.dataset.action = 'never';
+    ratingNever.textContent = '别再问了';
+    ratingActions.append(ratingLater, ratingNever);
+    rating.append(ratingPrimary, ratingActions);
+
+    menu.append(header, body, rating, footer);
     wrap.append(fab, menu);
     rootEl.appendChild(wrap);
 
@@ -185,6 +226,7 @@
       page.classList.add('hidden');
       home.classList.remove('hidden');
       menu.classList.remove('is-page');
+      opts.onShowHome?.();
     }
 
     function openSheet(key, item) {
@@ -204,6 +246,20 @@
       page.classList.remove('hidden');
       menu.classList.add('is-page');
       open();
+    }
+
+    function setSheetEnabled(key, enabled) {
+      footer.querySelectorAll('[data-sheet="' + key + '"]').forEach((el) => {
+        el.hidden = !enabled;
+      });
+    }
+
+    function setRating(state) {
+      const next = state || {};
+      const label = next.storeLabel || 'Edge';
+      ratingText.textContent = `用着顺手的话，去 ${label} 商店点个分。`;
+      ratingPrimary.textContent = `去 ${label} 商店评分 ⭐`;
+      rating.classList.toggle('hidden', !next.visible);
     }
 
     function setStatus(kind, text) {
@@ -280,7 +336,13 @@
     refresh.addEventListener('click', () => opts.onRefresh?.());
     download.addEventListener('click', () => opts.onDownload?.(selectedItems(), content));
     footer.querySelectorAll('[data-sheet]').forEach((btn) => {
-      btn.addEventListener('click', () => opts.onOpenSheet?.(btn.dataset.sheet));
+      btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        opts.onOpenSheet?.(btn.dataset.sheet);
+      });
+    });
+    rating.querySelectorAll('[data-action]').forEach((btn) => {
+      btn.addEventListener('click', () => opts.onRatingAction?.(btn.dataset.action));
     });
     doc.body.appendChild(rootEl);
 
@@ -289,6 +351,8 @@
       hide,
       showHome,
       openSheet,
+      setSheetEnabled,
+      setRating,
       setStatus,
       renderContent,
       selectedItems,

@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "微博内容下载与备份助手",
+  "name": "微博下载助手",
   "version": "1.0.0",
   "description": "保存当前页面中用户可访问的公开内容。",
   "permissions": [
@@ -72,7 +72,7 @@
   ],
   "action": {
     "default_popup": "popup/popup.html",
-    "default_title": "微博内容下载与备份助手",
+    "default_title": "微博下载助手",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",
