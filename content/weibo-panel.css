@@ -75,11 +75,11 @@
   position: absolute;
   bottom: 76px;
   right: 0;
-  width: 360px;
+  width: 408px;
   max-width: calc(100vw - 32px);
-  height: min(560px, calc(100vh - 200px));
-  min-height: min(520px, calc(100vh - 200px));
-  max-height: min(calc(100vh - 200px), 780px);
+  height: auto;
+  min-height: 0;
+  max-height: min(560px, calc(100vh - 160px));
   display: flex;
   flex-direction: column;
   background: var(--wbd-bg);
@@ -100,7 +100,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  min-height: 52px;
+  padding: 10px 16px;
   background: var(--wbd-bg);
   color: var(--wbd-header-text);
   border-bottom: 1px solid var(--wbd-border);
@@ -115,6 +116,8 @@
 }
 
 .weibo-dl-header-icon {
+  width: 30px;
+  height: 30px;
   border-radius: 6px;
   flex-shrink: 0;
 }
@@ -159,7 +162,7 @@
 #weibo-dl-page {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  min-height: 0;
 }
 
 #weibo-dl-menu.is-page .weibo-dl-footer,

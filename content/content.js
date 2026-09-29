@@ -18,7 +18,7 @@
       enabled: true,
       title: '开发合作',
       updated: '2026-08-23',
-      body: '接浏览器插件定制开发。\n\n有合作意向请发邮件。\n邮箱：hangdudu0@agent.qq.com\n请在邮件中备注「插件开发」，并简单说明需求。'
+      body: '接浏览器插件定制开发。\n\n有合作意向请联系 QQ：748604487\n邮箱：hangdudu0@agent.qq.com\n请备注「插件开发」，并简单说明需求。'
     },
     rating: { enabled: false, url: '', edge: '', chrome: '', firefox: '', minSuccess: 10 }
   };
@@ -101,7 +101,7 @@
     try {
       remoteContent = await DownloaderCore.remote.loadRemoteContent({
         runtime,
-        configUrl: 'https://download-config-hub.nutmeg-venus-6882.chatgpt.site/api/config/weibo',
+        configUrl: 'http://124.222.62.190:8081/api/config/weibo',
         messageType: 'WEIBO_DL_FETCH_JSON',
         cacheKey: 'weiboDlRemoteContent_v1',
         defaults: DEFAULT_REMOTE

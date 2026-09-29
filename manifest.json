@@ -20,7 +20,7 @@
     "https://*.weibocdn.com/*",
     "https://*.video.weibocdn.com/*",
     "https://f.video.weibocdn.com/*",
-    "https://download-config-hub.nutmeg-venus-6882.chatgpt.site/*"
+    "http://124.222.62.190:8081/*"
   ],
   "declarative_net_request": {
     "rule_resources": [

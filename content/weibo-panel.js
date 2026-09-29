@@ -17,11 +17,14 @@
     rootEl.id = 'weibo-dl-root';
     const wrap = doc.createElement('div');
     wrap.id = 'weibo-dl-panel';
+    wrap.dataset.theme = 'weibo';
 
     const fab = doc.createElement('button');
     fab.type = 'button';
     fab.id = 'weibo-dl-toggle';
     fab.title = opts.title || '保存';
+    fab.setAttribute('aria-label', opts.title || '打开下载助手');
+    fab.setAttribute('aria-controls', 'weibo-dl-menu');
     fab.setAttribute('aria-expanded', 'false');
     if (iconUrl) {
       const icon = doc.createElement('img');
@@ -35,6 +38,8 @@
     const menu = doc.createElement('div');
     menu.id = 'weibo-dl-menu';
     menu.className = 'hidden';
+    menu.setAttribute('role', 'dialog');
+    menu.setAttribute('aria-modal', 'false');
     menu.setAttribute('aria-label', opts.title || '内容下载助手');
 
     const header = doc.createElement('div');
@@ -45,8 +50,8 @@
       const headerIcon = doc.createElement('img');
       headerIcon.className = 'weibo-dl-header-icon';
       headerIcon.src = iconUrl;
-      headerIcon.width = 22;
-      headerIcon.height = 22;
+      headerIcon.width = 30;
+      headerIcon.height = 30;
       headerIcon.alt = '';
       headerLeft.appendChild(headerIcon);
     }
@@ -218,12 +223,14 @@
     function open() {
       menu.classList.remove('hidden');
       fab.setAttribute('aria-expanded', 'true');
+      close.focus({ preventScroll: true });
     }
 
     function hide() {
       menu.classList.add('hidden');
       fab.setAttribute('aria-expanded', 'false');
       showHome();
+      fab.focus({ preventScroll: true });
     }
 
     function toggle() {
@@ -352,6 +359,12 @@
     });
     rating.querySelectorAll('[data-action]').forEach((btn) => {
       btn.addEventListener('click', () => opts.onRatingAction?.(btn.dataset.action));
+    });
+    doc.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !isOpen()) return;
+      event.preventDefault();
+      if (!page.classList.contains('hidden')) showHome();
+      else hide();
     });
     doc.body.appendChild(rootEl);
 

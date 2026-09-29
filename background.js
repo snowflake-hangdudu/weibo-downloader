@@ -1,7 +1,7 @@
 importScripts('content/weibo-runtime.js', 'content/weibo-remote-content.js', 'content/weibo-media.js');
 
 const EXT = DownloaderCore.runtime.getApi();
-const CONFIG_URL = 'https://download-config-hub.nutmeg-venus-6882.chatgpt.site/api/config/weibo';
+const CONFIG_URL = 'http://124.222.62.190:8081/api/config/weibo';
 const CONFIG_MESSAGE = 'WEIBO_DL_FETCH_JSON';
 const downloadTargets = new Map();
 const RESOURCE_TYPES = ['sub_frame', 'image', 'media', 'xmlhttprequest', 'object', 'other'];

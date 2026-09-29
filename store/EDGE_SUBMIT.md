@@ -138,8 +138,16 @@ https://snowflake-hangdudu.github.io/weibo-downloader/
 
 ### Search terms
 
+一项一项点 **Add Term** 加进去（最多 7 个，每个不超过 30 字）：
+
 ```
-微博, 下载, 备份, 图片, 视频, 微博下载助手
+微博
+微博下载
+微博备份
+图片下载
+视频下载
+微博下载助手
+weibo download
 ```
 
 ---
@@ -149,28 +157,39 @@ https://snowflake-hangdudu.github.io/weibo-downloader/
 | 素材 | 尺寸 | 文件 |
 |------|------|------|
 | Extension logo | 300×300 | `store/logo-300.png` |
+| Screenshots（更清晰，优先传） | 640×400 | `store/screenshot-640x400.png` |
 | Screenshots | 1280×800 | `store/screenshot-1280x800.png` |
 
-需要时可本地重跑：`python store/_crop_store_shots.py`
+聊天压缩图只有约 1024 宽，拉到 1280×800 会糊。商店也接受 640×400，这张是缩小导出，更清楚。
+
+若要真正清晰的 1280×800：把本机原图（建议 1920×1080 以上）存成 `store/screenshot-source.png`，再运行 `python store/_crop_store_shots.py`。
 
 ---
 
 ## 第七步：Certification notes（建议粘贴英文）
 
+若表单问 testers 是否需要账号：选 **Yes** 也可以，下面说明里写清「不用账号密码，只用公开搜索页」。
+
 ```
 IMPORTANT — testers: the primary UI is an orange floating button at the BOTTOM-RIGHT of a Weibo page. The toolbar popup is only a launcher. Do not test on edge://extensions or a blank tab.
 
+No shared account or password is required. Use these public Weibo search pages:
+
+1) 东京爱情故事
+https://s.weibo.com/weibo?q=%E4%B8%9C%E4%BA%AC%E7%88%B1%E6%83%85%E6%95%85%E4%BA%8B
+
+2) 星游记
+https://s.weibo.com/weibo?q=%E6%98%9F%E6%B8%B8%E8%AE%B0
+
 How to test:
 1. Install this package.
-2. Open a public Weibo page, for example:
-   https://weibo.com/
-   https://s.weibo.com/weibo?q=%E4%B8%9C%E4%BA%AC%E7%88%B1%E6%83%85%E6%95%85%E4%BA%8B
+2. Open one of the two URLs above.
 3. Press F5 AFTER install so content scripts attach.
 4. Click the orange rounded button at BOTTOM-RIGHT (not only the toolbar icon). Clicking it again collapses the panel.
 5. Scroll so the target post sits in the upper-middle of the screen. The panel should show text / images / exposed videos.
 6. Check items and click the black download button. Files save to the browser Downloads folder.
 
-This extension does NOT bypass login, paywalls, private posts, or other access limits. It only saves content the current page can already show, after an explicit user click.
+If Weibo shows a login wall, any personal Weibo account is enough. We do not issue a tester password. This extension does NOT bypass login, paywalls, private posts, or other access limits. It only saves content the current page can already show, after an explicit user click.
 
 Manifest V3; no remote code; no analytics; no user data uploaded.
 Privacy: https://snowflake-hangdudu.github.io/weibo-downloader/
